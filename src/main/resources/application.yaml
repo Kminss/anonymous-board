@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/board?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: root
+
+
+  # jpa설정
+  jpa:
+    open-in-view: false
+    hibernate: # hibernate 사용 설정
+      # 애플리케이션 실행 시점에 테이블을 다 지우고, 내가 가진 entity 정보를 보고 다시 테이블 자동 생성
+      ddl-auto: update
+    properties: # property 사용 설정
+      hibernate: # hibernate property 설정
+        format_sql: true
+
+# 로그 레벨 설정
+logging:
+  level:
+    # hibernate 가 남기는 모든 로그가 debug모드로 설정
+    # jpa hibernate가 생성하는 sql이 로거를 통해서 찍히도록 하는 설정
+    org.hibernate.SQL: debug  # logger를 통해 하이버네이트 실행 SQL
+    org.hibernate.type: trace # 콘솔차에 조건에 바인딩되는 값 및 조회 결과 출력
+    rg.hibernate.type.descriptor.sql: trace    # sql의 바인딩 파라미터 값을 보여줌.
