@@ -48,7 +48,7 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPost(@PathVariable(value = "postId") Long id) {
-        return null;
+        return ResponseEntity.ok(postService.getPost(id));
     }
 
     @PutMapping("/{postId}")
