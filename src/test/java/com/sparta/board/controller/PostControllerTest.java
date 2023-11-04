@@ -189,7 +189,7 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("[Controller][GET] 게료시글 없는 상태에서 상세 조회 시 예외 발생")
+    @DisplayName("[Controller][GET] 없는 게시글 번호로 상세 조회 시 상태코드 404 반환")
     void givenPostId_whenRequesting_thenReturnThrow() throws Exception {
         //given
         Long postId = 1L;
@@ -240,7 +240,7 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("[Controller][PUT] 게시글 수정 요청 시 게시글이 없는 경우 예외 발생")
+    @DisplayName("[Controller][PUT] 게시글 수정 요청 시 게시글이 없는 경우  상태코드 404 반환")
     void givenUpdatePostInfo_whenRequesting_thenThrowException() throws Exception {
         //Given
         Long postId = 1L;
@@ -265,7 +265,7 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.msg").value("조회할 게시글이 없습니다."));
     }
     @Test
-    @DisplayName("[Controller][PUT] 게시글 수정 요청 시 비밀번호 다를 경우 예외 발생")
+    @DisplayName("[Controller][PUT] 게시글 수정 요청 시 비밀번호 다를 경우 상태코드 403 반환")
     void givenUpdatePostInfoWithInvalidPassword_whenRequesting_thenThrowException() throws Exception {
         //Given
         Long postId = 1L;
