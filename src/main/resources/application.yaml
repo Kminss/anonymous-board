@@ -22,6 +22,7 @@ spring:
 # 로그 레벨 설정
 logging:
   level:
+    com.sparta.board: debug #전체 로그 레벨 설정
     # hibernate 가 남기는 모든 로그가 debug모드로 설정
     # jpa hibernate가 생성하는 sql이 로거를 통해서 찍히도록 하는 설정
     org.hibernate.SQL: debug  # logger를 통해 하이버네이트 실행 SQL
