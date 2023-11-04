@@ -26,12 +26,13 @@ public class PostService {
         return PostResponse.from(post);
     }
 
+    @Transactional(readOnly = true)
     public List<PostResponse> getPosts() {
         return postRepository.findAll(Sort.by(Sort.Direction.DESC, "createdDateTime")).stream()
                 .map(PostResponse::from)
                 .toList();
     }
-
+    @Transactional(readOnly = true)
     public PostResponse getPost(Long id) {
         return PostResponse.from(
                 postRepository.findById(id)
@@ -39,6 +40,7 @@ public class PostService {
         );
     }
 
+    @Transactional
     public PostResponse updatePost(Long postId, PostRequest request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NoSuchElementException("수정할 게시글이 없습니다."));
