@@ -1,6 +1,7 @@
 # 익명 게시판 
 - Spring 개인 과제 - 익명 게시판 API 서버 구현하기
-- Postman을 활용한 API 테스트, 명세 작성
+- Postman을 활용한 API 테스트, 명세 작성 
+  링크: https://documenter.getpostman.com/view/18171187/2s9YXe6ig3
 
 # 요구사항
 - 게시글 작성 기능
