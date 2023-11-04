@@ -3,6 +3,7 @@ package com.sparta.board.service;
 import com.sparta.board.dto.request.PostRequest;
 import com.sparta.board.dto.response.PostResponse;
 import com.sparta.board.entity.Post;
+import com.sparta.board.exception.InvalidPasswordException;
 import com.sparta.board.repository.PostRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -10,8 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -35,8 +38,8 @@ class PostServiceTest {
     @Mock
     private PostRepository postRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+    @Spy
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @DisplayName("게시글 정보를 입력하면 게시글을 생성한다.")
     @Test
@@ -113,6 +116,51 @@ class PostServiceTest {
                 .isInstanceOf(NoSuchElementException.class);
     }
 
+    @DisplayName("게시글 수정정보를 입력하면, 게시글을 수정하고 수정된 게시글을 반환한다.")
+    @Test
+    void givenModifiedPostInfo_whenUpdatingPost_thenUpdatedPost() {
+        // Given
+        Long postId = 1L;
+        Post post = createPost(postId);
+        PostRequest request = PostRequest.of("updateName", "testPassword", "updateTitle", "testContent");
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        //When
+        PostResponse actual = sut.updatePost(postId, request);
+
+        //Then
+        assertThat(actual)
+                .hasFieldOrPropertyWithValue("name", request.name())
+                .hasFieldOrPropertyWithValue("title", request.title());
+    }
+
+    @DisplayName("수정할 게시글의 비밀번호를 다르게 입력하면, 예외를 발생한다.")
+    @Test
+    void givenInvalidPassword_whenUpdatingPost_thenThrowException() {
+        // Given
+        Long postId = 1L;
+        Post post = createPost(postId);
+        ReflectionTestUtils.setField(post, "id", postId);
+        PostRequest request = PostRequest.of("updateName", "invalidPassword", "updateTitle", "testContent");
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        //When & Then
+        Assertions.assertThatThrownBy(() -> sut.updatePost(postId, request))
+                .isInstanceOf(InvalidPasswordException.class);
+    }
+
+    @DisplayName("없는 게시글의 ID를 입력하면, 예외를 발생한다.")
+    @Test
+    void givenInvalidPostId_whenUpdatingPost_thenThrowException() {
+        // Given
+        PostRequest request = PostRequest.of("updateName", "invalidPassword", "updateTitle", "testContent");
+
+        //When & Then
+        Assertions.assertThatThrownBy(() -> sut.updatePost(2L, request))
+                .isInstanceOf(NoSuchElementException.class);
+    }
 
     private Post createPost(Long postId) {
         Post post = Post.of(

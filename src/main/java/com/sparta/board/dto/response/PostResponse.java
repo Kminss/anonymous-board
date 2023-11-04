@@ -5,6 +5,7 @@ import com.sparta.board.entity.Post;
 
 import java.time.LocalDateTime;
 public record PostResponse(
+        Long id,
         String name,
         String title,
         String content,
@@ -13,6 +14,7 @@ public record PostResponse(
 ) {
     public static PostResponse from(Post entity) {
         return new PostResponse(
+                entity.getId(),
                 entity.getName(),
                 entity.getTitle(),
                 entity.getContent(),

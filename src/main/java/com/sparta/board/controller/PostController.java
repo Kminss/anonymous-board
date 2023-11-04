@@ -56,7 +56,7 @@ public class PostController {
             @PathVariable(value = "postId") Long id,
             @RequestBody PostRequest request
     ) {
-        return null;
+        return ResponseEntity.ok(postService.updatePost(id, request));
 
     }
 
