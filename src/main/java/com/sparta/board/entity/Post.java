@@ -1,5 +1,6 @@
 package com.sparta.board.entity;
 
+import com.sparta.board.dto.request.PostRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -35,5 +36,11 @@ public class Post {
 
     public static Post of(String name, String password, String title, String content) {
         return new Post(name, password, title, content);
+    }
+
+    public void updatePost(PostRequest request) {
+        this.name = request.name();
+        this.title = request.title();
+        this.content = request.content();
     }
 }
