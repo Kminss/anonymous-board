@@ -4,6 +4,7 @@ import com.sparta.board.dto.request.PostRequest;
 import com.sparta.board.dto.response.PostResponse;
 import com.sparta.board.entity.Post;
 import com.sparta.board.repository.PostRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,9 +13,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -83,5 +87,41 @@ class PostServiceTest {
                         tuple("testName2","testTitle2","testContent2"),
                         tuple("testName3","testTitle3","testContent3")
                 );
+    }
+
+    @DisplayName("게시글 ID로 조회하면 해당하는 게시글 반환")
+    @Test
+    void givenPostId_whenGetPost_thenReturnPost() {
+        // Given
+        Long postId = 1L;
+        Post post = createPost(postId);
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        // When
+        PostResponse actual = sut.getPost(postId);
+
+        // Then
+        assertThat(actual).isEqualTo(PostResponse.from(post));
+    }
+
+    @DisplayName("없는 게시글 ID로 조회하면 예외 발생")
+    @Test
+    void givenNothingAtPostId_whenGetPost_thenThrowException() {
+        // Given
+        // When & Then
+        Assertions.assertThatThrownBy(() -> sut.getPost(1L))
+                .isInstanceOf(NoSuchElementException.class);
+    }
+
+
+    private Post createPost(Long postId) {
+        Post post = Post.of(
+                "testName",
+                passwordEncoder.encode("testPassword"),
+                "testTitle",
+                "testContent"
+        );
+        ReflectionTestUtils.setField(post, "id", postId);
+        return post;
     }
 }

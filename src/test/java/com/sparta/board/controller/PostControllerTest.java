@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.board.config.AppConfig;
 import com.sparta.board.dto.request.PostRequest;
 import com.sparta.board.dto.response.PostResponse;
+import com.sparta.board.entity.Post;
 import com.sparta.board.service.PostService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
@@ -154,5 +156,53 @@ class PostControllerTest {
         actions
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("[Controller][GET] 게시글 상세 조회 성공")
+    void givenPostId_whenRequesting_thenReturnPosts() throws Exception {
+        //given
+        Long postId = 1L;
+        PostRequest request = PostRequest.of(
+                "testName",
+                "testPassword",
+                "test Title",
+                "test Content"
+        );
+
+        when(postService.getPost(postId)).thenReturn(
+                PostResponse.from(request.toEntity(passwordEncoder))
+        );
+
+        //when
+        ResultActions actions = mvc.perform(
+                get("/api/posts/" + postId)
+        );
+
+
+        actions
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(request.name()))
+                .andExpect(jsonPath("$.title").value(request.title()))
+                .andExpect(jsonPath("$.content").value(request.content()));
+    }
+
+    @Test
+    @DisplayName("[Controller][GET] 게료시글 없는 상태에서 상세 조회 시 예외 발생")
+    void givenPostId_whenRequesting_thenReturnThrow() throws Exception {
+        //given
+        Long postId = 1L;
+        //when
+        when(postService.getPost(postId)).thenThrow(new NoSuchElementException("조회할 게시글이 없습니다."));
+
+        ResultActions actions = mvc.perform(
+                get("/api/posts/" + postId)
+        );
+
+        //then
+        actions
+                .andDo(print())
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.msg").value("조회할 게시글이 없습니다."));
     }
 }

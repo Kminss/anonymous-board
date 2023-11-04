@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,7 +32,10 @@ public class PostService {
     }
 
     public PostResponse getPost(Long id) {
-       return null;
+        return PostResponse.from(
+                postRepository.findById(id)
+                        .orElseThrow(() -> new NoSuchElementException("조회할 게시글이 없습니다."))
+        );
     }
 
     public PostResponse updatePost(Long postId, PostRequest request) {
