@@ -6,6 +6,7 @@ import com.sparta.board.entity.Post;
 import com.sparta.board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,9 @@ public class PostService {
     }
 
     public List<PostResponse> getPosts() {
-        return null;
+        return postRepository.findAll(Sort.by(Sort.Direction.DESC, "createdDateTime")).stream()
+                .map(PostResponse::from)
+                .toList();
     }
 
     public PostResponse getPost(Long id) {

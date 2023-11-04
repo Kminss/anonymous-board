@@ -18,11 +18,17 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @ExtendWith(SpringExtension.class)
@@ -110,5 +116,43 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.content").value(request.content()));
 
         // auditing 사용으로 실제 db 까지 안가서 날짜는 구분못하는데 괜찮은지?
+    }
+
+    @Test
+    @DisplayName("[Controller][POST] 게시글 목록 조회 성공")
+    void givenNothing_whenRequesting_thenSuccess() throws Exception {
+        //given
+        ArrayList<PostResponse> response = new ArrayList<>();
+        response.add(new PostResponse("testName1", "testTitle1", "testContent1", LocalDateTime.now()));
+        response.add(new PostResponse("testName2", "testTitle2", "testContent2", LocalDateTime.now()));
+        response.add(new PostResponse("testName3", "testTitle3", "testContent3", LocalDateTime.now()));
+
+        when(postService.getPosts()).thenReturn(response);
+        //when
+        ResultActions actions = mvc.perform(
+                get("/api/posts")
+        );
+
+        actions
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("testName1")))
+                .andExpect(content().string(containsString("testName2")))
+                .andExpect(content().string(containsString("testName3")));
+    }
+
+    @Test
+    @DisplayName("[Controller][POST] 게시글 목록 없는 경우 조회")
+    void givenNothing_whenRequesting_thenNoContentSuccess() throws Exception {
+        //given
+        when(postService.getPosts()).thenReturn(List.of());
+        //when
+        ResultActions actions = mvc.perform(
+                get("/api/posts")
+        );
+
+        actions
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }
