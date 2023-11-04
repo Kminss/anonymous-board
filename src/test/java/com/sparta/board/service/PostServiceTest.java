@@ -151,7 +151,7 @@ class PostServiceTest {
                 .isInstanceOf(InvalidPasswordException.class);
     }
 
-    @DisplayName("없는 게시글의 ID를 입력하면, 예외를 발생한다.")
+    @DisplayName("수정 요청 시 없는 게시글의 ID를 입력하면, 예외를 발생한다.")
     @Test
     void givenInvalidPostId_whenUpdatingPost_thenThrowException() {
         // Given
@@ -159,6 +159,49 @@ class PostServiceTest {
 
         //When & Then
         Assertions.assertThatThrownBy(() -> sut.updatePost(2L, request))
+                .isInstanceOf(NoSuchElementException.class);
+    }
+
+    @DisplayName("삭제할 게시글의 ID와 비밀번호를 입력하면, 게시글을 삭제한다.")
+    @Test
+    void givenPostIdAndPassword_whenDeletingPost_thenDeletePost() {
+        // Given
+        Long postId = 1L;
+        Post post = createPost(postId);
+        String password = "testPassword";
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        //When
+        sut.deletePost(postId, password);
+        //Then
+        then(postRepository).should().delete(post);
+    }
+
+    @DisplayName("삭제할 게시글의 비밀번호를 다르게 입력하면, 예외를 발생한다.")
+    @Test
+    void givenInvalidPassword_whenDeletingPost_thenThrowException() {
+        // Given
+        Long postId = 1L;
+        Post post = createPost(postId);
+        ReflectionTestUtils.setField(post, "id", postId);
+        String password = "invalidPassword";
+
+        given(postRepository.findById(postId)).willReturn(Optional.of(post));
+
+        //When & Then
+        Assertions.assertThatThrownBy(() -> sut.deletePost(postId, password))
+                .isInstanceOf(InvalidPasswordException.class);
+    }
+
+    @DisplayName("삭제 요청시 없는 게시글의 ID를 입력하면, 예외를 발생한다.")
+    @Test
+    void givenInvalidPostId_whenDeleting_thenThrowException() {
+        // Given
+        Long postId = 1L;
+        String password = "testPassword";
+        //When & Then
+        Assertions.assertThatThrownBy(() -> sut.deletePost(postId, password))
                 .isInstanceOf(NoSuchElementException.class);
     }
 

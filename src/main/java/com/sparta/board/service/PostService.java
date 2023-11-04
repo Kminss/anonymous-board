@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -21,6 +22,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public PostResponse createPost(PostRequest request) {
         Post post = postRepository.save(request.toEntity(passwordEncoder));
         return PostResponse.from(post);
@@ -54,6 +56,15 @@ public class PostService {
         return PostResponse.from(post);
     }
 
-    public void deletePost(Long id, String password) {
+    @Transactional
+    public void deletePost(Long postId, String password) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NoSuchElementException("삭제할 게시글이 없습니다."));
+
+        if (!passwordEncoder.matches(password, post.getPassword())) {
+            throw new InvalidPasswordException();
+        }
+        postRepository.delete(post);
     }
+
 }

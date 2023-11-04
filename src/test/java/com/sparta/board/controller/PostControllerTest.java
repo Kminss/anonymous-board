@@ -27,6 +27,7 @@ import java.util.NoSuchElementException;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -288,5 +289,59 @@ class PostControllerTest {
         actions
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.msg").value("비밀번호가 일치하지 않습니다."));
+    }
+
+    @Test
+    @DisplayName("[Controller][DELETE] 게시글 삭제 요청 정상 호출")
+    void givenPostIdAndPassword_whenRequesting_thenSuccessNoContent() throws Exception {
+        //Given
+        Long postId = 1L;
+        String password = "testPassword";
+
+
+        //When
+        ResultActions actions = mvc.perform(
+                delete("/api/posts/" + postId)
+                        .header("password", password)
+        );
+
+        //Then
+        actions
+                .andExpect(status().isNoContent());
+    }
+    @Test
+    @DisplayName("[Controller][DELETE] 게시글 삭제 요청 시 비밀번호가 없는 경우 상태코드 400 반환")
+    void givenPostIdAndNoPassword_whenRequesting_thenThrowException() throws Exception {
+        //Given
+        Long postId = 1L;
+
+        //When
+        ResultActions actions = mvc.perform(
+                delete("/api/posts/" + postId)
+        );
+        //Then
+        actions
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("[Controller][DELETE] 게시글 삭제 요청 시 비밀번호 다를 경우 상태코드 403 반환")
+    void givenPostIdAndInvalidPassword_whenRequesting_thenThrowException() throws Exception {
+        //Given
+        Long postId = 1L;
+        String password = "invalidPassword";
+
+        //When
+        doThrow(InvalidPasswordException.class).when(postService).deletePost(postId, password);
+
+        ResultActions actions = mvc.perform(
+                delete("/api/posts/" + postId)
+                        .header("password", password)
+        );
+
+
+        //Then
+        actions
+                .andExpect(status().isForbidden());
     }
 }
