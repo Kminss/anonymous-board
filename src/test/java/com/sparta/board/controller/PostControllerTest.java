@@ -34,7 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@ExtendWith(SpringExtension.class)
 @Import(AppConfig.class)
 @WebMvcTest(PostController.class)
 @DisplayName("게시글 API 컨트롤러 테스트")
@@ -122,7 +121,7 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("[Controller][POST] 게시글 목록 조회 성공")
+    @DisplayName("[Controller][GET] 게시글 목록 조회 성공")
     void givenNothing_whenRequesting_thenSuccess() throws Exception {
         //given
         ArrayList<PostResponse> response = new ArrayList<>();
@@ -145,7 +144,7 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("[Controller][POST] 게시글 목록 없는 경우 조회")
+    @DisplayName("[Controller][GET] 게시글 목록 없는 경우 조회")
     void givenNothing_whenRequesting_thenNoContentSuccess() throws Exception {
         //given
         when(postService.getPosts()).thenReturn(List.of());
